@@ -27,6 +27,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Allerta+Stencil&display=swap');
+        </style>
         {children}
       </body>
     </html>
