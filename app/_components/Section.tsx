@@ -1,27 +1,31 @@
 import { ReactNode } from "react";
+import { ScrollDownIndicator } from "./AnimatedElements/ScrollDownIndicator";
 
 type SectionProps = {
   children: ReactNode;
   bgColor?: string;
   blendMode?: React.CSSProperties['backgroundBlendMode'];
+  limitedArea?: boolean;
+  scrollIndicator?: boolean;
 }
 
 export function Section({
   children,
   bgColor,
   blendMode = "overlay",
+  limitedArea = false,
+  scrollIndicator = true
 }: SectionProps) {
   return (
     <section
       className={`
-        w-screen
+        relative
         h-[90vh]
-        flex
-        justify-center     /* centraliza horizontal */
-        items-center       /* centraliza vertical */
-        border-b border-[#706A60]
-        overflow-hidden
+        flex justify-center
+        border-b border-zinc-700
+        bg-black/30
         bg-cover bg-center bg-no-repeat
+        overflow-hidden
         ${bgColor ?? ""}
       `}
       style={{
@@ -37,9 +41,16 @@ export function Section({
         backgroundBlendMode: blendMode,
       }}
     >
-      {/* CONTAINER CENTRALIZADO */}
-      <div className="w-full max-w-[1200px]">
+      <div className={`
+        ${limitedArea ? "max-w-[1200px] max-auto" : ""}
+        z-2`}
+      >
         {children}
+        {scrollIndicator && (
+          <div className="opacity-50">
+            <ScrollDownIndicator />
+          </div>
+        )}
       </div>
     </section>
   );

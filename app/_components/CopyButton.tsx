@@ -1,13 +1,13 @@
-type CtaButtonProps = {
+type CopyButtonProps = {
     title: string
 }
 
-export default function CtaButton({
+export default function CopyButton({
     title
-}: CtaButtonProps) {
+}: CopyButtonProps) {
     return (
         <button className="
-              px-6 py-3 md:px-8 md:py-4 bg-black
+              px-10 md:py-4 bg-red-100
               text-[#ED7D3B]
               border
               rounded-sm

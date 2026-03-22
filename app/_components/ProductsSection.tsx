@@ -14,7 +14,7 @@ export function ProductsSection({ bikes, eletricBikes, motos }) {
   ];
 
   return (
-    <section>
+    <>
       <h1 className="
       uppercase text-3xl font-bold mb-6 text-white
       ">
@@ -30,9 +30,9 @@ export function ProductsSection({ bikes, eletricBikes, motos }) {
               key={t.key}
               onClick={() => setTab(t.key)}
               className={`
-                relative px-5 py-2.5 rounded-t-xl
+                relative px-2 py-2 rounded-t-xl
                 uppercase font-bold text-xs tracking-wide
-                flex items-center gap-2
+                flex items-center gap-1
                 border transition-all duration-200
                 ${active
                   ? "bg-[#ED7D3B] border-[#ED7D3B] text-white shadow-md scale-105"
@@ -99,6 +99,6 @@ export function ProductsSection({ bikes, eletricBikes, motos }) {
           ))}
       </div>
       <CtaButton title="confira de perto"></CtaButton>
-    </section>
+    </>
   );
 }

@@ -19,10 +19,15 @@
   }
 }
 
+@media (prefers-color-scheme: light) {
+  :root {
+    --background: #ffffff;
+    --foreground: #000000;
+  }
+}
+
 .allerta-stencil-regular {
   font-family: "Allerta Stencil", sans-serif;
-  font-weight: 400;
-  font-style: normal;
 }
 
 .font-stroke {
@@ -33,10 +38,54 @@ button {
   cursor: pointer;
 }
 
+.cursor-custom {
+  cursor: url("../public/cursors/cursor-orange.png"), auto;
+}
+
+html {
+  scroll-behavior: smooth
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: "Allerta Stencil", sans-serif;
   font-weight: 400;
   font-style: normal;
+}
+
+.highlight {
+  @apply bg-[#312f2a]/55 rounded-2xl text-[#8f9698] px-3 py-1 box-decoration-clone;
+}
+
+.normalText {
+  @apply font-sans text-base text-white font-medium leading-relaxed;
+}
+
+@keyframes soft-shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-2px);
+  }
+
+  40% {
+    transform: translateX(2px);
+  }
+
+  60% {
+    transform: translateX(-1px);
+  }
+
+  80% {
+    transform: translateX(1px);
+  }
+}
+
+.shake-hover:hover {
+  animation: soft-shake 0.4s ease-in-out;
 }
