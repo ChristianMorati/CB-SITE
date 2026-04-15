@@ -30,6 +30,32 @@ export function ProductDetailedCard({ product }: Props) {
     <div className="max-w-[1200px] mx-auto shadow-lg overflow-hidden normalText
     flex flex-col gap-2 p-2
     ">
+      {/* Product Attributes */}
+      <CardTitle title="Caracteristicas" />
+      <div className="flex flex-col gap-2">
+        <table className="">
+          <thead className="">
+            <tr>
+              <th className="text-left p-2 border-b">Atributo</th>
+              <th className="text-left p-2 border-b">Valor</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {product.productAttributes.map((attribute) => (
+              <tr key={attribute.id} className="border-b last:border-0">
+                <td className="p-2 font-medium">
+                  {attribute.attributeDefinition.label}
+                </td>
+                <td className="p-2">
+                  {attribute.value}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       <h1
         className="
         text-lg uppercase
@@ -142,27 +168,7 @@ export function ProductDetailedCard({ product }: Props) {
         </div>
 
         <hr />
-        {/* Product Attributes */}
-        <CardTitle title="Caracteristicas" />
-        <div className="flex flex-col gap-2">
-          <table className="">
-            <thead className="">
-              <tr>
-                <th className="text-left p-2 border-b">Atributo</th>
-                <th className="text-left p-2 border-b">Valor</th>
-              </tr>
-            </thead>
 
-            <tbody>
-              {product.attribute.map((attribute) => (
-                <tr key={attribute.name} className="border-b last:border-0">
-                  <td className="p-2 font-medium">{attribute.name}</td>
-                  <td className="p-2">{attribute.value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
 
         {/* <pre>
           {JSON.stringify(product, null, 2)}

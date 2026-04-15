@@ -1,4 +1,16 @@
+import { AttributeDefinition } from "@/app/cms/products/create/_Inputs/Attribute"
+
+export type ProductAttribute = {
+  id: string
+  productId: string
+  attributeDefinitionId: string
+  attributeDefinition: AttributeDefinition
+  value: string
+}
+
+
 export type CreateProductPayload = {
+  id?: string
   name: string
   description?: string
   type: string
@@ -21,6 +33,10 @@ export type CreateProductPayload = {
   }[]
 
   productColor: ProductColor[]
+
+  productAttributes: [
+    ProductAttribute
+  ]
 
   paymentCondition: {
     type: string

@@ -12,6 +12,7 @@ export type PaymentConditionInput = {
 type Props = {
   value: PaymentConditionInput[]
   onChange: (value: PaymentConditionInput[]) => void
+  debug?: boolean
 }
 
 const paymentTypes = [
@@ -19,7 +20,11 @@ const paymentTypes = [
   { type: "credit-card", label: "Cartão de Crédito" },
 ]
 
-export function PaymentConditionsInput({ value, onChange }: Props) {
+export function PaymentConditionsInput({
+  value,
+  onChange,
+  debug = false
+}: Props) {
 
   function getSelected(type: string) {
     return value.find(v => v.type === type)
@@ -199,9 +204,11 @@ export function PaymentConditionsInput({ value, onChange }: Props) {
       })}
 
       {/* DEBUG */}
-      <pre className="bg-black text-green-400 p-3 rounded">
-        {JSON.stringify(value, null, 2)}
-      </pre>
+      {debug && (
+        <pre className="bg-black text-green-400 p-3 rounded">
+          {JSON.stringify(value, null, 2)}
+        </pre>
+      )}
 
     </div>
   )

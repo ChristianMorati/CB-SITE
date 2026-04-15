@@ -5,12 +5,6 @@ type ProductType =
   | "patinete"
   | "bike";
 
-interface Attribute {
-  id: string;
-  name: string;
-  value: string;
-}
-
 interface UnlockType {
   id: string;
   type: string;
@@ -37,13 +31,26 @@ interface PaymentCondition {
   numberOfInstallments: number;
 }
 
+interface AttributeDefintion {
+  id: string;
+  type: string;
+  label: string;
+  metadata: any;
+}
+
+interface ProductAttribute {
+  id: string,
+  value: string,
+  attributeDefinition: AttributeDefintion
+}
+
 export interface Product {
   id: string;
   name: string;
   description: string | null;
   type: ProductType;
   imgUrl: string;
-  attribute: Attribute[];
+  productAttributes: ProductAttribute[];
   productUnlockType: ProductUnlockType[];
   seatColor: Color[];
   productColor: Color[];

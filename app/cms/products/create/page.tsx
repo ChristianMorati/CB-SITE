@@ -7,9 +7,10 @@ import { FormInput } from "./_Inputs/FormInput"
 import { SectionTitle } from "./_Inputs/SectionLabel"
 import { PaymentConditionInput, PaymentConditionsInput } from "./_Inputs/PaymentConditionsInput"
 import { CreateProductPayload } from "@/app/api/_types/CreateProductPayload"
-import AttributesSection from "./_Inputs/AttributesSection"
 import ProductTypeSelect from "./_Inputs/ProductTypeSelect"
 import ProductColorsManager from "./_Inputs/ProductColorsManager"
+import { supabase } from "@/lib/supabase"
+import { AttributeField, AttributeForm, ProductAttributesPage } from "@/app/test/page"
 
 function parseRGB(rgbString: string) {
   const [r, g, b] = rgbString.split(",").map(Number)
@@ -47,32 +48,6 @@ export const productTypes = [
 
 export type ProductType = typeof productTypes[number]
 
-const baseAttributes: BaseAttribute[] = [
-  { id: "power_watts", label: "Potência (W)", type: "number" },
-  { id: "range_km", label: "Autonomia (km)", type: "number" },
-  { id: "avg_speed_kmh", label: "Velocidade Média (km/h)", type: "number" },
-  { id: "charge_time_hours", label: "Tempo de Carga (h)", type: "number" },
-  { id: "battery_count", label: "Número de Baterias", type: "number" },
-  { id: "max_weight_kg", label: "Peso Máximo (kg)", type: "number" },
-  { id: "has_alarm", label: "Possui Alarme", type: "boolean" },
-  { id: "passenger_count", label: "Número de Passageiros", type: "number" },
-  { id: "tube_tire", label: "Pneu com Câmara", type: "boolean" },
-  { id: "reverse_gear", label: "Marcha Ré", type: "boolean" },
-  { id: "bluetooth", label: "Bluetooth", type: "boolean" },
-  { id: "has_turn_signal", label: "Possui Seta", type: "boolean" },
-  { id: "seat_color_name", label: "Cor do Assento (Nome)", type: "string" },
-  { id: "seat_color_rgb", label: "Cor do Assento (RGB)", type: "string" },
-  {
-    id: "battery_type",
-    label: "Tipo de Bateria",
-    type: "select-list",
-    data: [
-      { option: "lithium" },
-      { option: "lead-acid" },
-      { option: "gel" }
-    ]
-  },
-]
 
 export async function createProduct(payload: any) {
   const res = await fetch("/api/products", {
@@ -114,15 +89,60 @@ export type ProductColorItem = {
   product_color_type: "predominant" | "assistant"
 }
 
-export default function CreateOrUpdateProduct({
+type ProductFormValues = {
+  id?: string
+  name: string
+  description: string
+  type: string
+}
+
+export default async function Page({ productId = "6559805b-ce9a-44ef-a2d2-89291c617862" }) {
+
+  const { data: product, error } = await supabase
+    .from("product")
+    .select(`
+      id,
+      name,
+      description,
+      type,
+      imgUrl,
+      productAttributes(*,
+      attributeDefinition(*)
+      ),
+      productUnlockType (
+        unlockType(*)
+      ),
+      seatColor(*),
+      productColor(*),
+      paymentCondition(*)
+    `)
+    .eq("id", productId)
+    .single();
+
+  console.log(product)
+  return <CreateOrUpdateProduct product={product} />
+}
+
+export function CreateOrUpdateProduct({
   product
 }: CreateOrUpdateProductProps) {
   const inputRefs = useRef<Record<string, HTMLInputElement | HTMLSelectElement | null>>({})
-  const [values, setValues] = useState<Record<string, any>>({})
-  const [selectedAttributes, setSelectedAttributes] = useState<string[]>([])
-  const [unlockTypes, setUnlockTypes] = useState<UnlockType[]>([])
-  const [paymentConditions, setPaymentConditions] = useState<PaymentConditionInput[]>([])
+  const [productForm, setProductForm] = useState<ProductFormValues>({
+    id: product?.id,
+    name: product?.name ?? "",
+    description: product?.description ?? "",
+    type: product?.type ?? "",
+  })
 
+  const [selectedAttributes, setSelectedAttributes] = useState<string[]>([])
+  const [unlockTypes, setUnlockTypes] = useState<UnlockType[]>(() => {
+    if (!product?.productUnlockType) return []
+
+    return product.productUnlockType.map((item) => {
+      return item.unlockType.type as UnlockType
+    })
+  })
+  const [paymentConditions, setPaymentConditions] = useState<PaymentConditionInput[]>(product?.paymentCondition || [])
   const [productColors, setProductColors] = useState<ProductColorItem[]>(
     product?.productColor ?? [
       {
@@ -131,44 +151,33 @@ export default function CreateOrUpdateProduct({
       },
     ]
   )
+  const [seatColor, setSeatColor] = useState<SeatColor>(
+    () => {
+      if (product?.seatColor?.[0]?.RGB) {
+        const rgb = parseRGB(product?.seatColor[0].RGB)
 
-  const [seatColor, setSeatColor] = useState<SeatColor>({
-    hex: "#ff0000",
-    rgb: { r: 255, g: 0, b: 0 },
-  })
+        return {
+          hex: rgbToHex(rgb),
+          rgb,
+        }
+      }
 
-  function enforceColorRules(colors: ProductColor[]) {
-    if (colors.length === 0) return
-
-    if (colors.length === 1) {
-      colors[0].type = "predominant"
-      return
-    }
-
-    const hasPredominant = colors.some(c => c.type === "predominant")
-
-    if (!hasPredominant) {
-      colors[0].type = "predominant"
-    }
-  }
+      return {
+        hex: "#ff0000",
+        rgb: { r: 255, g: 0, b: 0 },
+      }
+    })
+  const [definitions, setDefinitions] = useState<any>([])
+  const [productAttributes, setProductAttributes] = useState<Record<string, any>>({})
 
   useEffect(() => {
     if (!product) return
-
-    // valores simples
-    setValues({
-      name: product.name ?? "",
-      description: product.description ?? "",
-      type: product.type ?? "",
-      imgUrl: product.imgUrl ?? "",
-    })
 
     // atributos
     if (!product?.attribute) return
 
     const selected: string[] = []
     const valuesMap: Record<string, any> = {}
-
 
     product.attribute.forEach((attr: any) => {
       selected.push(attr.name)
@@ -184,40 +193,7 @@ export default function CreateOrUpdateProduct({
     })
 
     setSelectedAttributes(selected)
-    setValues(valuesMap)
-
-    // unlock types
-    setUnlockTypes(
-      product.productUnlockType?.map(
-        (item: any) => item.unlockType.type as UnlockType
-      ) ?? []
-    )
-
-    // ✅ PRODUCT COLORS (ADAPTER)
-    if (product.productColor?.length) {
-      console.log(product.productColor)
-      setProductColors(product.productColor)
-    }
-
-    // ✅ SEAT COLOR (ADAPTER)
-    if (product.seatColor?.[0]?.RGB) {
-      const rgb = parseRGB(product.seatColor[0].RGB)
-
-      setSeatColor({
-        hex: rgbToHex(rgb),
-        rgb,
-      })
-    }
-
-    // pagamentos
-    setPaymentConditions(product.paymentCondition || [])
-
   }, [product])
-
-  type ProductAttribute = {
-    name: string
-    value: string
-  }
 
   useEffect(() => {
     const last = selectedAttributes[selectedAttributes.length - 1]
@@ -227,40 +203,12 @@ export default function CreateOrUpdateProduct({
     }
   }, [selectedAttributes])
 
-  function getLabelById(id: string) {
-    return baseAttributes.find(attr => attr.id === id)?.label
-  }
-
-  function toggleAttribute(id: string) {
-    setSelectedAttributes((prev) =>
-      prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id]
-    )
-  }
-
-  function handleValueChange(id: string, value: any) {
-    setValues((prev) => ({
-      ...prev,
-      [id]: value,
-    }))
-  }
-
-  const formattedAttributes = selectedAttributes.map((attrId) => ({
-    name: attrId,
-    value: String(values[attrId] ?? ""),
-  }))
-
   const composedObject = {
-    name: values.name ?? "",
-    type: values.type ?? "",
-    description: values.description ?? "",
+    name: productForm.name ?? "",
+    type: productForm.type ?? "",
+    description: productForm.description ?? "",
 
-    attributes: selectedAttributes.map((attr) => ({
-      attribute: attr,
-      value: values[attr] ?? "",
-      label: getLabelById(attr) ?? ""
-    })),
+    attributes: productAttributes,
 
     unlockTypes: unlockTypes.map((ut) => ({
       type: ut,
@@ -298,44 +246,210 @@ export default function CreateOrUpdateProduct({
     await createProduct(payload)
   }
 
+  useEffect(() => {
+    async function load() {
+      const { data: attributeDefinitions } = await supabase
+        .from("attributeDefinition")
+        .select("*")
+        .order("label")
+
+      setDefinitions(attributeDefinitions || [])
+
+      const { data: productAttributes } = await supabase
+        .from("productAttributes")
+        .select("*")
+        .eq("productId", productForm?.id)
+
+      if (!productAttributes) return
+
+      // ✅ marcar selecionados
+      const selected = productAttributes.map(
+        (item) => item.attributeDefinitionId
+      )
+
+      setSelectedAttributes(selected)
+
+      // ✅ mapear valores
+      const mappedValues: Record<string, any> = {}
+
+      productAttributes.forEach((item) => {
+        let value = item.value
+
+        // normalizar boolean
+        if (value === "true") value = true
+        if (value === "false") value = false
+
+        mappedValues[item.attributeDefinitionId] = value
+      })
+
+      setProductAttributes((prev) => ({
+        ...prev,
+        ...mappedValues,
+      }))
+    }
+
+    load()
+  }, [])
+
+  useEffect(() => {
+    async function load() {
+    }
+
+    load()
+  }, [product])
+
+  function handleBasicChange(field: string, value: any) {
+    setProductForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+  }
+
+  const [attributeValues, setAttributeValues] = useState<
+    Record<string, string>
+  >({});
+
+
+  // 🔥 inicializa corretamente
+  useEffect(() => {
+    if (product?.productAttributes) {
+      const initialValues = Object.fromEntries(
+        product.productAttributes.map((item) => [
+          item.attributeDefinitionId,
+          item.value,
+        ])
+      );
+
+      setAttributeValues(initialValues);
+    }
+  }, [product]);
+
+
+
+
+
+
+
+
+
+
+
+  // Attributes Change
+  const [attributesDefinitionsBaseListIsLoading,
+    setAttributesDefinitionsBaseListIsLoading
+  ] = useState<boolean>(true)
+
+  async function getAttributesDefinitionsList() {
+    const {
+      data: attributesDefinitionsBaseList,
+      error: getAttributesDefinitionsError
+    } = await supabase
+      .from("attributesDefinition")
+      .select("*")
+
+    if (getAttributesDefinitionsError) {
+      setAttributesDefinitionsBaseListIsLoading(false)
+      return <>{JSON.stringify(getAttributesDefinitionsError)}</>
+    }
+
+    setAttributesDefinitionsBaseListIsLoading(false)
+    setAttributesDefinitionsBaseList(attributesDefinitionsBaseList)
+    return attributesDefinitionsBaseList
+  }
+
+  useEffect(() => {
+
+    getAttributesDefinitionsList()
+      .then((list) => {
+        console.log(list)
+      })
+      .catch()
+
+  }, [])
+
+  type ProductAttributesToInsert = {
+    attributeDefinitionId: string
+    value: any
+    productId?: string
+  }
+
+  const [
+    productAttributesToInsert,
+    setProductAttributesToInsert
+  ] = useState<ProductAttributesToInsert[]>([])
+
+  const [
+    attributesDefinitionsBaseList,
+    setAttributesDefinitionsBaseList
+  ] = useState<any>();
+
+  function handleProductAttributeToInsertChange({
+    attributeDefinitionId,
+    value,
+  }: ProductAttributesToInsert) {
+    setProductAttributesToInsert((prev) => {
+      const indexToUpdate = prev
+        .findIndex(productAttribute =>
+          productAttribute.attributeDefinitionId === attributeDefinitionId
+        );
+      prev[indexToUpdate] = value
+      return prev
+    })
+  }
+
+
+  // *** Attributes Change End ***
+
+
   return (
-    <div style={{ padding: 40, fontFamily: "sans-serif" }}
+    <div
+      style={{ padding: 40, fontFamily: "sans-serif" }}
       className="flex max-w-[1200px] mx-auto overflow-hidden"
     >
-
       <div className="w-[50%]">
         <h1>Product Creation - Bike Elétrica</h1>
 
+        {/* DEBUG */}
+
+        {!attributesDefinitionsBaseListIsLoading && (
+          <pre>
+            {JSON.stringify(attributesDefinitionsBaseList, null, 2)}
+            {JSON.stringify(productAttributesToInsert, null, 2)}
+          </pre>
+        )}
+        <hr />
+
+        <SectionTitle name="Atributos Elétricos" />
+
+        {product?.productAttributes.map((attr) => (
+          <></>
+        ))}
+
         <h2>Selecione os atributos</h2>
         <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-1">
-            <FormInput
-              label="Nome"
-              value={values.name}
-              onChange={(value) => handleValueChange("name", value)}
-            />
+          <FormInput
+            label="Nome"
+            value={productForm.name}
+            onChange={(value) => handleBasicChange("name", value)}
+          />
 
-            <FormInput
-              label="Description"
-              value={values.description}
-              onChange={(value) => handleValueChange("description", value)}
-            />
-          </div>
+          <FormInput
+            label="Description"
+            value={productForm.description}
+            onChange={(value) => handleBasicChange("description", value)}
+          />
+
+          <ProductTypeSelect
+            value={productForm.type ?? "bike"}
+            productTypes={productTypes}
+            onChange={(value) => handleBasicChange("type", value)}
+          />
 
           <SectionTitle name="Tipos de Desbloqueio" />
           <UnlockTypesInput
             value={unlockTypes}
             onChange={setUnlockTypes}
           />
-
-          <div>
-            <SectionTitle name="Tipo do Produto" />
-            <ProductTypeSelect
-              value={values.type ?? ""}
-              productTypes={productTypes}
-              onChange={(value) => handleValueChange("type", value)}
-            />
-          </div>
 
           <div>
             <SectionTitle name="Cores do Produto" />
@@ -363,20 +477,10 @@ export default function CreateOrUpdateProduct({
         </div>
         <br />
 
-        <SectionTitle name="Atributos Elétricos" />
-        <AttributesSection
-          baseAttributes={baseAttributes}
-          selectedAttributes={selectedAttributes}
-          values={values}
-          toggleAttribute={toggleAttribute}
-          handleValueChange={handleValueChange}
-          inputRefs={inputRefs}
-        />
         <button onClick={() => {
           handleSubmit()
         }}>create</button>
       </div>
-
 
       <div className="">
         <h2>Objeto Final Composto</h2>
@@ -388,7 +492,7 @@ export default function CreateOrUpdateProduct({
             borderRadius: 8,
           }}
         >
-          {JSON.stringify(/***composedObjec***/product, null, 2)}
+          {JSON.stringify(/***composedObjec***/composedObject, null, 2)}
         </pre>
         <button
           onClick={copyToClipboard}

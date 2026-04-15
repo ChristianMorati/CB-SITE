@@ -4,7 +4,9 @@ type Attribute = {
     id: string
     label: string
     type: "boolean" | "number" | "string" | "select-list"
-    data?: { option: string }[]
+    matadata?: {
+        options?: (string | { label: string; value: any })[]
+    }
 }
 
 type Props = {
@@ -26,6 +28,26 @@ export default function AttributesSection({
     handleValueChange,
     inputRefs,
 }: Props) {
+
+    // 🔥 normaliza qualquer formato de JSONB
+    function getOptions(attr: Attribute) {
+        const metadata = attr.matadata
+        if (!metadata?.options) return []
+
+        return metadata.options.map((item) => {
+            if (typeof item === "string") {
+                return {
+                    label: item,
+                    value: item,
+                }
+            }
+
+            return {
+                label: item.label ?? String(item.value),
+                value: item.value ?? item.label,
+            }
+        })
+    }
 
     return (
         <div>
@@ -53,12 +75,15 @@ export default function AttributesSection({
                                         ref={(el) => {
                                             inputRefs.current[attr.id] = el
                                         }}
-                                        value={values[attr.id] ?? ""}
+                                        value={String(values[attr.id] ?? false)}
                                         onChange={(e) =>
-                                            handleValueChange(attr.id, e.target.value === "true", attr.label)
+                                            handleValueChange(
+                                                attr.id,
+                                                e.target.value === "true",
+                                                attr.label
+                                            )
                                         }
                                     >
-                                        <option value="">Selecione</option>
                                         <option value="true">Sim</option>
                                         <option value="false">Não</option>
                                     </select>
@@ -74,7 +99,13 @@ export default function AttributesSection({
                                         placeholder="Digite o valor"
                                         value={values[attr.id] ?? ""}
                                         onChange={(e) =>
-                                            handleValueChange(attr.id, Number(e.target.value), attr.label)
+                                            handleValueChange(
+                                                attr.id,
+                                                e.target.value === ""
+                                                    ? ""
+                                                    : Number(e.target.value),
+                                                attr.label
+                                            )
                                         }
                                     />
                                 )}
@@ -89,7 +120,11 @@ export default function AttributesSection({
                                         placeholder="Digite o valor"
                                         value={values[attr.id] ?? ""}
                                         onChange={(e) =>
-                                            handleValueChange(attr.id, e.target.value, attr.label)
+                                            handleValueChange(
+                                                attr.id,
+                                                e.target.value,
+                                                attr.label
+                                            )
                                         }
                                     />
                                 )}
@@ -100,16 +135,27 @@ export default function AttributesSection({
                                         ref={(el) => {
                                             inputRefs.current[attr.id] = el
                                         }}
-                                        value={values[attr.id] ?? ""}
+                                        value={
+                                            values[attr.id] != null
+                                                ? String(values[attr.id])
+                                                : ""
+                                        }
                                         onChange={(e) =>
-                                            handleValueChange(attr.id, e.target.value, attr.label)
+                                            handleValueChange(
+                                                attr.id,
+                                                e.target.value,
+                                                attr.label
+                                            )
                                         }
                                     >
                                         <option value="">Selecione</option>
 
-                                        {attr.data?.map((item) => (
-                                            <option key={item.option} value={item.option}>
-                                                {item.option}
+                                        {getOptions(attr).map((item) => (
+                                            <option
+                                                key={String(item.value)}
+                                                value={String(item.value)}
+                                            >
+                                                {item.label}
                                             </option>
                                         ))}
                                     </select>

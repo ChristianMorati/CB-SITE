@@ -3,7 +3,6 @@ import { supabase } from "@/lib/supabase"
 
 export async function POST(req: NextRequest) {
   try {
-
     const body = await req.json()
 
     if (!body.name || !body.type) {
@@ -19,7 +18,7 @@ export async function POST(req: NextRequest) {
     )
 
     if (error) {
-      console.error(error)
+      console.error("RPC ERROR:", error)
 
       return NextResponse.json(
         { error: error.message },
@@ -27,10 +26,16 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    if (!data?.success) {
+      return NextResponse.json(
+        { error: data?.error || "Unknown error" },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json(data)
 
   } catch (error) {
-
     console.error("PRODUCT CREATE ERROR:", error)
 
     return NextResponse.json(

@@ -16,7 +16,9 @@ export default async function Page({ params }: Props) {
       description,
       type,
       imgUrl,
-      attribute(*),
+      productAttributes(
+        attributeDefinition(*)
+      ),
       productUnlockType (
         unlockType(*)
       ),
