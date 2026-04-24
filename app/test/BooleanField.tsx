@@ -1,7 +1,7 @@
 import { BaseFieldProps } from "./FieldsTypes";
 import { useId } from "react";
 
-export function BooleanField({ label, value, onChange }: BaseFieldProps) {
+export function BooleanField({ label, value = false, onChange }: BaseFieldProps) {
     const id = useId();
 
     const checked = value === true || value === "true";

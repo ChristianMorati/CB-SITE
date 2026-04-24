@@ -1,10 +1,10 @@
 "use client";
 
-import { supabase } from "@/lib/supabase";
 import { useState, useEffect } from "react";
 import { AttributeDefinition } from "../cms/products/create/_Inputs/Attribute";
 import { Product } from "../_components/Product/Types";
 import { AttributeFieldAdapter } from "./AttributeFieldAdapter";
+import { AttibuteDefinition, ProductAttributes, ProductAttributesToInsert } from ".";
 
 interface Props {
     product: Product
@@ -19,33 +19,22 @@ export default function EditAttributesForm({ product }: Props) {
     ] = useState<boolean>(true)
 
     async function getAttributesDefinitionsList() {
-        const {
-            data: attributesDefinitionsBaseList,
-            error: getAttributesDefinitionsError
-        } = await supabase
-            .from("attributeDefinition")
-            .select("*")
+        setAttributesDefinitionsBaseListIsLoading(true);
 
-        if (getAttributesDefinitionsError) {
-            setAttributesDefinitionsBaseListIsLoading(false)
-            setError(JSON.stringify(getAttributesDefinitionsError))
-            return
+        try {
+            const data = await AttibuteDefinition.fetchAttributeDefinitions();
+
+            setAttributesDefinitionsBaseList(data);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setAttributesDefinitionsBaseListIsLoading(false);
         }
-
-        setAttributesDefinitionsBaseListIsLoading(false)
-        setAttributesDefinitionsBaseList(attributesDefinitionsBaseList)
-        return attributesDefinitionsBaseList
     }
 
     useEffect(() => {
         const list = getAttributesDefinitionsList().catch(list => list)
     }, [])
-
-    type ProductAttributesToInsert = {
-        attributeDefinitionId: string
-        value: any
-        productId?: string
-    }
 
     const [
         productAttributesToInsert,
@@ -61,6 +50,7 @@ export default function EditAttributesForm({ product }: Props) {
 
     function handleProductAttributeToInsertChange({
         attributeDefinitionId,
+        attributeDefinitionType,
         value,
     }: ProductAttributesToInsert) {
         setProductAttributesToInsert((prev) => {
@@ -76,11 +66,14 @@ export default function EditAttributesForm({ product }: Props) {
                 );
             }
 
+            const validatedValue = ProductAttributes.validateAttributeValue(value, attributeDefinitionType);
+
             return [
                 ...prev,
                 {
                     attributeDefinitionId,
-                    value,
+                    attributeDefinitionType,
+                    value: validatedValue,
                 },
             ];
         });
@@ -94,12 +87,9 @@ export default function EditAttributesForm({ product }: Props) {
                 (attr) => attr.attributeDefinition.id === definition.id
             );
 
-            let value;
+            let value: any = existing?.value;
 
-            if (existing) {
-                value = existing.value;
-            } else {
-                // fill in with default values
+            if (value === undefined || value === null || value === "") {
                 switch (definition.type) {
                     case "boolean":
                         value = false;
@@ -113,7 +103,6 @@ export default function EditAttributesForm({ product }: Props) {
                     default:
                         value = "";
                 }
-
             }
 
             return {
@@ -134,38 +123,53 @@ export default function EditAttributesForm({ product }: Props) {
                 mx-auto
                 p-5 flex flex-col gap-4
             ">
-                {/* DEBUG */}
-                {attributesDefinitionsBaseList.map((attr) => {
-                    const existingAttribute = productAttributesToInsert.find(
-                        attribute => attribute.attributeDefinitionId === attr.id
-                    );
-
-                    return (
-                        <div className="" key={attr.id}>
-                            <AttributeFieldAdapter
-                                attribute={attr}
-                                value={existingAttribute?.value ?? ""}
-                                onChange={(value) =>
-                                    handleProductAttributeToInsertChange({
-                                        attributeDefinitionId: attr.id,
-                                        value,
-                                    })
-                                }
-                            />
-                        </div>
-                    );
-                })}
-
-                <hr />
                 <div>
                     <pre>
-                        {/* {JSON.stringify(productAttributesToInsert, null, 2)} */}
+                        {JSON.stringify(productAttributesToInsert, null, 2)}
                     </pre>
                 </div>
+                <hr />
+
+                {/* DEBUG */}
+
+                {attributesDefinitionsBaseListIsLoading ? (
+                    <>
+                        <p>loading...</p>
+                    </>
+                ) : (
+                    <>
+                        {attributesDefinitionsBaseList.map((attr) => {
+                            const existingAttribute = productAttributesToInsert.find(
+                                attribute => attribute.attributeDefinitionId === attr.id
+                            );
+
+                            return (
+                                <div className="" key={attr.id}>
+                                    <AttributeFieldAdapter
+                                        attribute={attr}
+                                        value={existingAttribute?.value ?? ""}
+                                        onChange={(value) =>
+                                            handleProductAttributeToInsertChange({
+                                                attributeDefinitionId: attr.id,
+                                                attributeDefinitionType: attr.type,
+                                                value,
+                                            })
+                                        }
+                                    />
+                                </div>
+                            );
+                        })}</>
+                )}
 
                 {error && (
                     <>Error</>
                 )}
+
+                <button className="
+                    bg-sky-500 text-white
+                    px-4 py-2
+                ">Insert Attrs</button>
+
             </div>
         </>
     )
