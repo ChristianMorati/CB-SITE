@@ -1,11 +1,11 @@
 'use client'
 
-import { useMemo } from "react"
+export type AttributeType = "number" | "string" |"boolean" | "select-list" | "color-picker";
 
 export type AttributeDefinition = {
   id: string
   label: string
-  type: "number" | "boolean" | "string" | "select-list" | "color-picker"
+  type: AttributeType
   metadata: Record<string, any> | null;
 }
 

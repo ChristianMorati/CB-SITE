@@ -10,7 +10,6 @@ import { CreateProductPayload } from "@/app/api/_types/CreateProductPayload"
 import ProductTypeSelect from "./_Inputs/ProductTypeSelect"
 import ProductColorsManager from "./_Inputs/ProductColorsManager"
 import { supabase } from "@/lib/supabase"
-import { AttributeField, AttributeForm, ProductAttributesPage } from "@/app/test/page"
 
 function parseRGB(rgbString: string) {
   const [r, g, b] = rgbString.split(",").map(Number)
@@ -133,6 +132,17 @@ export function CreateOrUpdateProduct({
     description: product?.description ?? "",
     type: product?.type ?? "",
   })
+
+  useEffect(() => {
+    if (product) {
+      setProductForm({
+        id: product.id,
+        name: product.name ?? "",
+        description: product.description ?? "",
+        type: product.type ?? "",
+      });
+    }
+  }, [product]);
 
   const [selectedAttributes, setSelectedAttributes] = useState<string[]>([])
   const [unlockTypes, setUnlockTypes] = useState<UnlockType[]>(() => {
@@ -324,16 +334,6 @@ export function CreateOrUpdateProduct({
     }
   }, [product]);
 
-
-
-
-
-
-
-
-
-
-
   // Attributes Change
   const [attributesDefinitionsBaseListIsLoading,
     setAttributesDefinitionsBaseListIsLoading
@@ -410,6 +410,7 @@ export function CreateOrUpdateProduct({
         <h1>Product Creation - Bike Elétrica</h1>
 
         {/* DEBUG */}
+        {JSON.stringify(productForm, null, 2)}
 
         {!attributesDefinitionsBaseListIsLoading && (
           <pre>
@@ -430,7 +431,7 @@ export function CreateOrUpdateProduct({
           <FormInput
             label="Nome"
             value={productForm.name}
-            onChange={(value) => handleBasicChange("name", value)}
+            onChange={(e) => handleBasicChange("name", e.target.value)}
           />
 
           <FormInput
@@ -492,7 +493,7 @@ export function CreateOrUpdateProduct({
             borderRadius: 8,
           }}
         >
-          {JSON.stringify(/***composedObjec***/composedObject, null, 2)}
+          {JSON.stringify(/***composedObjec***/productForm, null, 2)}
         </pre>
         <button
           onClick={copyToClipboard}
@@ -501,6 +502,8 @@ export function CreateOrUpdateProduct({
           Copiar JSON
         </button>
       </div>
+
+      {/* {JSON.stringify(attributesDefinitionsBaseList, null, 2)} */}
     </div>
   )
 }

@@ -66,14 +66,12 @@ export default function EditAttributesForm({ product }: Props) {
                 );
             }
 
-            const validatedValue = ProductAttributes.validateAttributeValue(value, attributeDefinitionType);
-
             return [
                 ...prev,
                 {
                     attributeDefinitionId,
                     attributeDefinitionType,
-                    value: validatedValue,
+                    value,
                 },
             ];
         });
@@ -168,7 +166,11 @@ export default function EditAttributesForm({ product }: Props) {
                 <button className="
                     bg-sky-500 text-white
                     px-4 py-2
-                ">Insert Attrs</button>
+                "
+                    onClick={() => {
+                        ProductAttributes.validateProductAttributes(productAttributesToInsert)
+                    }}
+                >Insert Attrs</button>
 
             </div>
         </>
