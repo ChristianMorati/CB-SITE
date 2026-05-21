@@ -1,0 +1,15 @@
+.electric-text {
+  @apply text-2xl md:text-4xl uppercase py-2;
+
+  background-image: url("/gifs/eletric-effect.gif");
+  background-size: cover;
+  background-position: center;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+
+  text-shadow: 0 0 1px rgba(186, 146, 122, 0.7);
+}

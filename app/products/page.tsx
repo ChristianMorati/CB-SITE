@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase"
-import { ProductCard } from "../cms/products/[id]/page"
+import ProductCard from "../_components/Product/Card/ProductCard";
 
 export default async function Page() {
     const productId = "02434c55-97d2-4ad5-89d6-ed99e9b7c161"
@@ -46,7 +46,7 @@ export default async function Page() {
                     {JSON.stringify(data, null, 2)}
                 </pre>
 
-                <ProductCard product={data[0]}/>
+                <ProductCard product={data}/>
             </div>
         </>
     )

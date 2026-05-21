@@ -30,10 +30,6 @@ describe("Product.validateAttributesAgainstDefinitions", () => {
             type: "boolean",
         },
         {
-            id: "c1d9ff1d-139e-4a2b-93f1-5cfbc16c7c23",
-            type: "color-picker",
-        },
-        {
             id: "5ee8d824-dde4-46c8-8177-a770bcbda986",
             type: "select-list"
         }
@@ -49,11 +45,6 @@ describe("Product.validateAttributesAgainstDefinitions", () => {
             attributeDefinitionId: "946b5731-c2a4-4d87-970e-184a698aa7ec",
             attributeDefinitionType: "boolean",
             value: "true",
-        },
-        {
-            attributeDefinitionId: "c1d9ff1d-139e-4a2b-93f1-5cfbc16c7c23",
-            attributeDefinitionType: "color-picker",
-            value: "#ff0000",
         },
         {
             attributeDefinitionId: "5ee8d824-dde4-46c8-8177-a770bcbda986",
@@ -120,41 +111,6 @@ describe("Product.validateAttributesAgainstDefinitions", () => {
                 mockDefinitions
             )
         ).toThrow("Invalid number value");
-    });
-
-    // COLOR-PICKER TYPE TESTS
-    it("should throw if value is incompatible with type of attribute definition for color-picker", () => {
-        const invalid = [
-            {
-                attributeDefinitionId: "c1d9ff1d-139e-4a2b-93f1-5cfbc16c7c23",
-                attributeDefinitionType: "color-picker",
-                value: "(255, 0, 0)", // ❌ Wrong value for color-picker type
-            },
-        ];
-
-        expect(() =>
-            (product as any).validateAttributesAgainstDefinitions(
-                invalid,
-                mockDefinitions
-            )
-        ).toThrow("Invalid color value");
-    });
-
-    it("should throw if value is incompatible with type of attribute definition for color-picker", () => {
-        const invalid = [
-            {
-                attributeDefinitionId: "c1d9ff1d-139e-4a2b-93f1-5cfbc16c7c23",
-                attributeDefinitionType: "color-picker",
-                value: "#5151db",
-            },
-        ];
-
-        expect(() =>
-            (product as any).validateAttributesAgainstDefinitions(
-                invalid,
-                mockDefinitions
-            )
-        ).not.toThrow();
     });
 
     // SELECT-LIST TYPE TESTS

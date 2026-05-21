@@ -7,6 +7,7 @@ type SectionProps = {
   blendMode?: React.CSSProperties['backgroundBlendMode'];
   limitedArea?: boolean;
   scrollIndicator?: boolean;
+  dinamicHeight?: boolean;
 }
 
 export function Section({
@@ -14,13 +15,14 @@ export function Section({
   bgColor,
   blendMode = "overlay",
   limitedArea = false,
+  dinamicHeight = false,
   scrollIndicator = true
 }: SectionProps) {
   return (
     <section
       className={`
         relative
-        h-[90vh]
+        ${dinamicHeight ? "h-auto pb-15" : "h-[90vh]"}
         flex justify-center
         border-b border-zinc-700
         bg-black/30

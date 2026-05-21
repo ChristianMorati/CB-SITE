@@ -1,4 +1,4 @@
-import { AttributeDefinition } from "../cms/products/create/_Inputs/Attribute";
+import { AttributeDefinition, AttributeType } from "../cms/products/create/_Inputs/Attribute";
 
 export type BaseFieldProps = {
     label: string;
@@ -9,6 +9,7 @@ export type BaseFieldProps = {
 export type AttributeFieldProps = {
     attribute: AttributeDefinition;
     value: string;
+    type: AttributeType
     onChange: (value: string) => void;
 };
 

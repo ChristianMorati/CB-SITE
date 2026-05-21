@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { AttributeDefinition } from "../cms/products/create/_Inputs/Attribute";
 import { Product } from "../_components/Product/Types";
 import { AttributeFieldAdapter } from "./AttributeFieldAdapter";
@@ -8,9 +8,15 @@ import { AttibuteDefinition, ProductAttributes, ProductAttributesToInsert } from
 
 interface Props {
     product: Product
+    productAttributesToInsert: ProductAttributesToInsert[]
+    setProductAttributesToInsert: React.Dispatch<React.SetStateAction<ProductAttributesToInsert[]>>
 }
 
-export default function EditAttributesForm({ product }: Props) {
+export const EditAttributesForm: React.FC<Props> = ({ 
+    product, 
+    productAttributesToInsert, 
+    setProductAttributesToInsert 
+}) => {
     const [error, setError] = useState("")
 
     // Attributes Change
@@ -33,13 +39,8 @@ export default function EditAttributesForm({ product }: Props) {
     }
 
     useEffect(() => {
-        const list = getAttributesDefinitionsList().catch(list => list)
+        const list = getAttributesDefinitionsList().catch(list => list) // what?
     }, [])
-
-    const [
-        productAttributesToInsert,
-        setProductAttributesToInsert
-    ] = useState<ProductAttributesToInsert[]>([])
 
     type AttributesDefinitionsBaseList = AttributeDefinition
 
@@ -78,14 +79,15 @@ export default function EditAttributesForm({ product }: Props) {
     }
 
     useEffect(() => {
-        if (!product) return;
-
         const formattedAttributes = attributesDefinitionsBaseList.map((definition) => {
-            const existing = product.productAttributes.find(
-                (attr) => attr.attributeDefinition.id === definition.id
-            );
+            let existing;
+            if (product?.id) {
+                existing = product.productAttributes.find(
+                    (attr) => attr.attributeDefinition.id === definition.id
+                );
+            }
 
-            let value: any = existing?.value;
+            let value: any = existing?.value || "";
 
             if (value === undefined || value === null || value === "") {
                 switch (definition.type) {
@@ -96,7 +98,7 @@ export default function EditAttributesForm({ product }: Props) {
                         value = 0;
                         break;
                     case "color-picker":
-                        value = "#2318798";
+                        value = "#000000";
                         break;
                     default:
                         value = "";
@@ -105,6 +107,7 @@ export default function EditAttributesForm({ product }: Props) {
 
             return {
                 attributeDefinitionId: definition.id,
+                attributeDefinitionType: definition.type,
                 productId: product.id,
                 value,
             };
@@ -119,60 +122,56 @@ export default function EditAttributesForm({ product }: Props) {
             <div className="
                 max-w-[1200px] 
                 mx-auto
-                p-5 flex flex-col gap-4
+                p-5 flex gap-4
             ">
-                <div>
+                {/* <div className="w-[50vw] overflow-x-auto">
                     <pre>
                         {JSON.stringify(productAttributesToInsert, null, 2)}
                     </pre>
-                </div>
+                </div> */}
                 <hr />
 
                 {/* DEBUG */}
+                <div className="w-[50vw]">
+                    {attributesDefinitionsBaseListIsLoading ? (
+                        <>
+                            <p>loading...</p>
+                        </>
+                    ) : (
+                        <>
+                            {attributesDefinitionsBaseList.map((attr) => {
+                                const existingAttribute = productAttributesToInsert.find(
+                                    attribute => attribute.attributeDefinitionId === attr.id
+                                );
 
-                {attributesDefinitionsBaseListIsLoading ? (
-                    <>
-                        <p>loading...</p>
-                    </>
-                ) : (
-                    <>
-                        {attributesDefinitionsBaseList.map((attr) => {
-                            const existingAttribute = productAttributesToInsert.find(
-                                attribute => attribute.attributeDefinitionId === attr.id
-                            );
-
-                            return (
-                                <div className="" key={attr.id}>
-                                    <AttributeFieldAdapter
-                                        attribute={attr}
-                                        value={existingAttribute?.value ?? ""}
-                                        onChange={(value) =>
-                                            handleProductAttributeToInsertChange({
-                                                attributeDefinitionId: attr.id,
-                                                attributeDefinitionType: attr.type,
-                                                value,
-                                            })
-                                        }
-                                    />
-                                </div>
-                            );
-                        })}</>
-                )}
+                                return (
+                                    <div className="" key={attr.id}>
+                                        <AttributeFieldAdapter
+                                            attribute={attr}
+                                            value={existingAttribute?.value ?? ""}
+                                            type={attr.type}
+                                            onChange={(value) =>
+                                                handleProductAttributeToInsertChange({
+                                                    attributeDefinitionId: attr.id,
+                                                    attributeDefinitionType: attr.type,
+                                                    value,
+                                                })
+                                            }
+                                        />
+                                    </div>
+                                );
+                            })}</>
+                    )}
+                </div>
 
                 {error && (
                     <>Error</>
                 )}
-
-                <button className="
-                    bg-sky-500 text-white
-                    px-4 py-2
-                "
-                    onClick={() => {
-                        ProductAttributes.validateProductAttributes(productAttributesToInsert)
-                    }}
-                >Insert Attrs</button>
-
             </div>
+
+            <pre>
+                {JSON.stringify(productAttributesToInsert, null, 2)}
+            </pre>
         </>
     )
 }

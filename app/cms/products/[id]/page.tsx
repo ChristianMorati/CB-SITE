@@ -3,7 +3,6 @@ import { PageWrapper } from "@/app/_components/Page/PageWrapper";
 import { ProductDetailedCard } from "@/app/_components/Product/Card/ProductDetailedCard";
 import { ProductNotFounded } from "@/app/_components/Product/ProductNotFounded";
 import { supabase } from "@/lib/supabase";
-import { json } from "stream/consumers";
 
 interface Props {
   params: Promise<{

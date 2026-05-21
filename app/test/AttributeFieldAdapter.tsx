@@ -35,6 +35,7 @@ export function normalizeMetadata(metadata: unknown): Metadata | null {
 export function AttributeFieldAdapter({
     attribute,
     value,
+    type,
     onChange,
 }: AttributeFieldProps) {
     switch (attribute.type) {

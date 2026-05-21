@@ -14,6 +14,10 @@ import { ScrollDownIndicator } from "./_components/AnimatedElements/ScrollDownIn
 import { FolderTabs } from "./_components/FolderTabs";
 import { ProductImage } from "./_components/Product/ProductImage";
 import { Product } from "./_components/Product/Product";
+import { Motorbike } from "lucide-react";
+import { features } from "process";
+import { ProductsCarousel } from "./_components/AnimatedElements/ProductsCarousel";
+import { ScrollList } from "./_components/Product/ProductFeatures";
 
 const bikes = ["GTI", "RAVA", "ECOS", "VIKING / PRO"]
 const motos = ["AVELLOZ", "JET 90CC", "JET 125", "JET 2025"]
@@ -40,6 +44,55 @@ const productTypes = [
 export default function Home() {
   const isNatal = true
 
+  const products = {
+    motorbike: {
+      name: "AVELLLOZ 90CC",
+      imageSrc: "https://static.shopbike.com.br/public/shopbike/imagens/produtos/thumbs/bicicleta-gti-roma-aro-29-shimano-21v-verde-militar-67101dfec6142.png",
+      features: [
+        "SHIMANO MT200",
+        "CUBO BARULHENTO",
+        "21 MARCHAS",
+        "CUBO BARULHENTO",
+        "CATRACA SINGLE",
+      ]
+    },
+    bike: {
+      name: "GTI ROMA ARO 29",
+      imageSrc: "https://static.shopbike.com.br/public/shopbike/imagens/produtos/bicicleta-gti-roma-aro-29-shimano-21v-preto-e-vermelho-67101dd5506a1.png",
+      features: [
+        "SHIMANO MT200",
+        "CUBO BARULHENTO",
+        "21 MARCHAS",
+        "CUBO BARULHENTO",
+        "CATRACA SINGLE",
+      ]
+    },
+    eletric: [
+      {
+        name: "EKO-5 DUOS",
+        imageSrc: "/imgs/eko-5.png",
+        features: [
+          "SHIMANO MT200",
+          "CUBO BARULHENTO",
+          "21 MARCHAS",
+          "CUBO BARULHENTO",
+          "CATRACA SINGLE",
+        ]
+      },
+      {
+        name: "EKO-5 DUOS",
+        imageSrc: "https://www.avelloz.com.br/wp-content/uploads/2026/02/AZ125-PNG-769x1024.png",
+        features: [
+          "SHIMANO MT200",
+          "CUBO BARULHENTO",
+          "21 MARCHAS",
+          "CUBO BARULHENTO",
+          "CATRACA SINGLE",
+        ]
+      },
+    ],
+  }
+
   return (
     <PageWrapper>
       <main className="text-black
@@ -55,7 +108,21 @@ export default function Home() {
           <Header />
         </div>
 
-        <div>
+        <ProductsCarousel
+          title={"ELÉTRICAS"}
+          items={[
+            products.eletric[0],
+            products.eletric[1],
+            products.bike,
+          ]} />
+          
+        <div className="">
+          {/* Products Preview */}
+          <section
+            id="products"
+            className="scroll-mt-[10vh]"
+          >
+          </section>
           {/* Main Section */}
           <Section>
             <div className="
@@ -160,7 +227,6 @@ export default function Home() {
               "
                 />
               </div>
-
             </div>
           </Section>
 
@@ -206,8 +272,10 @@ export default function Home() {
                 src="/ecos.webp"
                 className="
                 absolute
-                brightness-25
-                -mt-15 lg:-mt-20
+                md:bottom-0
+                sm:scale-125 md:scale-150 lg:scale-150
+                brightness-30
+                mt-10 sm:-mt-15 lg:-mt-20
                 grayscale
                 z-1
               "
@@ -246,7 +314,6 @@ export default function Home() {
                     MANTER
                   </span>
                   <br />
-                  O
                 </span>
               </h2>
 
@@ -274,21 +341,6 @@ export default function Home() {
               </div>
             </div>
           </Section>
-
-          {/* <div className="
-               flex flex-col lg:flex-row justify-center items-center gap-2
-               uppercase
-               z-2
-              ">
-                <div>
-                  <h1 className="text-7xl">Avelloz</h1>
-                </div>
-
-                <h1 className="text-4xl">X</h1>
-                <div>
-                  <h1 className="text-7xl leading-loose">Shineray</h1>
-                </div>
-              </div> */}
 
           {/* Who We Are */}
           <section>
@@ -325,14 +377,14 @@ export default function Home() {
                 flex items-center pl-10
                 absolute inset-0
                 bg-linear-to-l from-orange-950 to-tranparent
-                [clip-path:polygon(0%_0%,56%_0%,45%_100%,0%_100%)]
+                [clip-path:polygon(0%_0%,55.4%_0%,44.5%_100%,0%_100%)]
                 z-2
                 "
               >
                 <div className="flex flex-col gap-2">
                   <p className="
                     text-center
-                    bg-black/50 px-6 py-3 rounded-sm
+                    bg-black/50 px-6 py-3 rounded-lt-lg
                   ">
                     LOJA
                   </p>
@@ -346,41 +398,35 @@ export default function Home() {
                 absolute inset-0
                 flex items-center justify-end pr-10
                 bg-[url('/ecos.webp')] bg-cover bg-center
-                [clip-path:polygon(55%_0%,100%_0%,100%_100%,45%_100%)]
+                [clip-path:polygon(55.4%_0%,100%_0%,100%_100%,44.5%_100%)]
                 z-1
                 "
               >
-                <div className="absolute inset-0
-                  bg-linear-to-r from-black to-tranparent
-                "/>
-                <div className="flex flex-col" >
+                <div className="flex flex-col gap-2">
                   <p className="
                     text-center
-                    bg-black/80
-                    px-6 py-3 rounded-sm
-                ">
+                    bg-black/80 px-6 py-3 rounded-rt-lg
+                  ">
                     oficina
                   </p>
-                  <div className="z-2 -mt-4">
-                    <CtaButton title="Serviços"></CtaButton>
-                  </div>
+                  <CtaButton title="Serviços"></CtaButton>
                 </div>
               </div>
               <div className="
-              absolute bottom-2/4 left-1/2 md:top-1/2 -translate-x-1/2 -translate-y-1/2
-              z-2
-              flex flex-col items-center justify-center
-              w-18 h-18 md:w-30 md:h-30 lg:size-40
-              rounded-full
-              bg-linear-to-br from-amber-300 via-yellow-500 to-amber-700
-              shadow-[0_0_25px_rgba(255,200,50,0.7)]
-              border-4 border-amber-200
-              text-center
-              font-bold
-              text-white
-              tracking-wider
-              uppercase
-              [text-shadow:0_1px_4px_rgba(0,0,0,.75)]
+                absolute bottom-2/4 left-1/2 md:top-1/2 -translate-x-1/2 -translate-y-1/2
+                z-2
+                flex flex-col items-center justify-center
+                w-18 h-18 md:w-30 md:h-30 lg:size-40
+                rounded-full
+                bg-linear-to-br from-amber-300 via-yellow-500 to-amber-700
+                shadow-[0_0_25px_rgba(255,200,50,0.7)]
+                border-4 border-amber-200
+                text-center
+                font-bold
+                text-white
+                tracking-wider
+                uppercase
+                [text-shadow:0_1px_4px_rgba(0,0,0,.75)]
               ">
                 <span className="text-xl md:text-3xl">+30</span>
                 <span className="text-xs md:text-xl">Anos</span>
@@ -415,18 +461,28 @@ export default function Home() {
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-col md:flex-row items-center gap-2">
                       <div className="p-2 bg-zinc-500"></div>
-                      <h3>(27) 98969-9129</h3>
+                      <h3>(27)996284099</h3>
                       <CopyButton title="COPY"></CopyButton>
                     </div>
                     <div className="flex flex-col md:flex-row items-center gap-2">
                       <div className="p-2 bg-zinc-500"></div>
-                      <h3>(27) 98969-9129</h3>
+                      <h3>(27)996284099</h3>
                       <CopyButton title="COPY"></CopyButton>
                     </div>
                   </div>
-                  <div className="justify-center md:justify-start flex md:flex-row gap-2">
-                    <CtaButton title="WHATSAPP"></CtaButton>
-                    <CtaButton title="INSTAGRAM"></CtaButton>
+                  <div className="justify-center md:justify-start flex md:flex-col gap-2">
+                    <div className="flex gap-2">
+                      <div>
+                        <Link href={"https://api.whatsapp.com/send/?phone=27996284099&text&type=phone_number&app_absent=0"} target="_blank" rel="noopener noreferrer">
+                          <CtaButton title="WHATSAPP" />
+                        </Link>
+                      </div>
+                      <div>
+                        <Link href={"https://www.instagram.com/centralbikelinhares/"} target="_blank" rel="noopener noreferrer">
+                          <CtaButton title="instagram" />
+                        </Link>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -434,14 +490,6 @@ export default function Home() {
 
           </Section>
         </div>
-
-        {/* Products Preview */}
-        <section
-          id="products"
-          className="scroll-mt-[10vh]"
-        >
-          <Product />
-        </section>
       </main >
     </PageWrapper >
   );

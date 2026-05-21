@@ -26,7 +26,7 @@ export class AttibuteDefinition {
 }
 
 type AttributeValue = boolean | number | string | AttributeType | undefined;
-const validTypes: AttributeType[] = ["number", "boolean", "select-list", "color-picker"];
+const validTypes: AttributeType[] = ["number", "boolean", "select-list"] // "color-picker"];
 
 export class ProductAttributes {
     public static validateProductAttributes(
@@ -83,29 +83,18 @@ export class ProductAttributes {
                 const parsed = Number(value);
 
                 if (Number.isFinite(parsed)) {
-                    this.checkNumberIfIsOutOfRange(parsed, type);
+                    this.checkNumberIfIsOutOfRange(parsed);
                     return parsed;
                 }
             }
 
             if (typeof value === "number" && Number.isFinite(value)) {
-                this.checkNumberIfIsOutOfRange(value, type);
+                this.checkNumberIfIsOutOfRange(value);
                 return value;
             }
 
             throw new Error(
                 `Invalid number value${location}: expected a numeric value.`
-            );
-        }
-
-        if (type === "color-picker") {
-            if (typeof value === "string") {
-                const isValidHex = /^#([0-9A-Fa-f]{3}){1,2}$/.test(value);
-                if (isValidHex) return value;
-            }
-
-            throw new Error(
-                `Invalid color value${location}: expected HEX color.`
             );
         }
 
@@ -126,15 +115,19 @@ export class ProductAttributes {
 
     private static checkNumberIfIsOutOfRange(
         value: AttributeValue,
-        attributeDefinitionType: AttributeType
     ): void {
-        if (attributeDefinitionType === "number") {
-            if (typeof value === "number") {
-                const isOutOfRange = value < 0 || value > 100000;
-                if (isOutOfRange) {
-                    throw new Error(`Invalid number value;`);
-                }
+        try {
+            const numericValue = Number(value);
+    
+            const isInvalid = isNaN(numericValue) || numericValue <= 0 || numericValue > 100000;
+    
+            if (isInvalid) {
+                throw new Error(`Invalid number value: ${value}. Value must be between 1 and 100000.`);
             }
+    
+            return;
+        } catch (error) {
+            throw new Error(`Invalid number value: ${value}. Value must be between 0 and 100000.`);
         }
     }
 }

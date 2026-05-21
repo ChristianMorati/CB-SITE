@@ -14,20 +14,22 @@ export const ScrollList: React.FC<ScrollListProps> = ({
             className={`
                 list-disc list-inside
                 relative
-                overflow-y-scroll
-                [mask-[linear-gradient(to_bottom,black_80%,transparent)]
+                overflow-y-auto
+                mask-[linear-gradient(to_bottom,black_80%,transparent)]
+                max-h-[150px]
+                ml-1
                 ${className}
             `}
             style={{
-                scrollbarColor: "#937461 #000",
-                scrollbarWidth: "auto",
+                scrollbarColor: "#937461 #181815",
+                scrollbarWidth: "thin",
                 direction: "rtl",
             }}
         >
             {items.map((item, index) => (
                 <li key={`${item}-${index}`}
                     className="
-                    pl-5
+                    pl-2
                 "
                     style={{
                         direction: "ltr"
@@ -58,6 +60,13 @@ export function ProductFeatures({
     return (
         <>
             <ScrollList items={[
+                "cubo barulhento de fuder a calota",
+                "cubo barulhento de fuder a calota",
+                "cubo barulhento de fuder a calota",
+                "cubo barulhento de fuder a calota",
+                "cubo barulhento de fuder a calota",
+                "cubo barulhento de fuder a calota",
+                "cubo barulhento de fuder a calota",
                 "cubo barulhento de fuder a calota",
                 "cubo barulhento de fuder a calota",
                 "cubo barulhento de fuder a calota",
